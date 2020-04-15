@@ -1,0 +1,159 @@
+﻿@addTagHelper*,Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Index";
+}
+<h1>Index</h1>
+<script src="~/lib/scripts/jquery.min.js"></script>
+<script src="~/lib/scripts/jquery.unobtrusive-ajax.min.js"></script>
+
+@*<div>
+        <div>
+            <marquee>Welcome to Programming world</marquee>
+        </div>
+
+        <div id="myDiv">
+            @
+            @{ Html.RenderPartial("pv_AjaxUpdate");}
+        </div>
+
+        <a asp-controller="Home" asp-action="Index">Update DateTime</a>
+        <a asp-controller="Home" asp-action="AjaxUpdate"
+           data-ajax="true"
+           data-ajax-method="get"
+           data-ajax-update="#myDiv"
+           data-ajax-mode="replace">Update-Ajax</a>
+    </div>*@
+
+<script>
+    $(document).ready(function () {
+        $("#ProgressDiv").hide();
+        LoadGrid();
+
+        $("#GetAllStudents").click(function myfunction() {
+            
+        });
+        function LoadGrid() {
+            $("#ProgressDiv").show();
+            $.ajax({
+                url: '/JAStudents/GetStudents',
+                type: 'GET',
+                dataType: 'json',
+                success: function (students) {
+                    PrepareTable(students);
+                    $("#ProgressDiv").hide();
+                }
+            });
+        }  
+        function PrepareTable(students) {
+            var myTable = "<table class='table table-responsive table-border table-striped table-hover'>" +
+                "<thead><tr><th>ID</th><th>Name</th><th>Email</th></tr></thead><tbody>";
+            $.each(students, function (index, item) {
+                var myRow = "<tr><td>" + item.studentId +
+                    "</td><td>" + item.name +
+                    "</td><td>" + item.email +
+                    "</td><tr>";
+                myTable += myRow;
+
+            });
+            myTable += "</tbody></table>"
+            $("#studentList").html(myTable);
+        };
+
+        $("#btnGetStudents").click(function myfunction() {
+            var sid = $("#sid").val();
+            $.ajax({
+                url: '/JAStudents/GetStudentById?id=' + sid,
+                type: 'GET',
+                dataType: 'json',
+                success: function (student) {
+                    FillForm(student);
+                }
+            });
+        });
+        function FillForm(student) {
+            $("#sname").val(student.name);
+            $("#semail").val(student.email);
+        };
+
+        $("#btnUpdateStudent").click(function myfunction() {
+            var sid = $("#sid").val();
+            var sname = $("#sname").val();
+            var semail = $("#semail").val();
+            var obj = { StudentId: sid, Name: sname, Email: semail };
+            $.ajax({
+                url: '/JAStudents/UpdateStudent',
+                type: 'POST',
+                dataType: 'json',
+                data: obj,
+                success: function (msg) {
+                    $("#msg").html(msg);
+                    LoadGrid();
+                }
+            });
+        });
+
+        $("#btnCreateStudent").click(function myfunction() {
+            var sid = 0;
+            var sname = $("#sname").val();
+            var semail = $("#semail").val();
+            var obj = { StudentId: sid, Name: sname, Email: semail };
+            $.ajax({
+                url: '/JAStudents/UpdateStudent',
+                type: 'POST',
+                dataType: 'json',
+                data: obj,
+                success: function (msg) {
+                    $("#msg").html(msg);
+                    LoadGrid();
+                }
+            });
+         });
+
+        $("#btnDeleteStudent").click(function myfunction() {
+            var sid = $("#sid").val();
+            $.ajax({
+                url: '/JAStudents/DeleteStudent?id=' + sid,
+                type: 'GET',
+                dataType: 'json',
+                success: function (msg) {
+                    ClearForm();
+                    $("msg").html(msg);
+                    LoadGrid();
+                }
+            });
+        });
+        function ClearForm()  {
+            $("#sid").val("");
+            $("#sname").val("");
+            $("#semail").val("");
+        };
+    });
+</script>
+
+<input type="button" id="GetAllStudents" value="GetAllStudents" />
+<div id="ProgressDiv" >
+    <img src="~/lib/Images/Progressbar.gif" width="400" height="300"/>
+</div>
+<div id="studentList"></div>
+<div class="alert alert-dismissible alert-success" id="msg"></div>
+
+<form>
+    <div class="form-group">
+        <label  class="control-label">Id</label>
+        <input id="sid" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label  class="control-label">Name</label>
+        <input id="sname" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label  class="control-label">Email</label>
+        <input id="semail" class="form-control" />
+    </div>
+    <div class="form-group">
+        <input type="button" value="GetStudent" id="btnGetStudents" class="btn btn-primary" />
+        <input type="button" value="Update" id="btnUpdateStudent" class="btn btn-primary" />
+        <input type="button" value="Create New" id="btnCreateStudent" class="btn btn-primary" />
+        <input type="button" value="Delete" id="btnDeleteStudent" class="btn btn-primary" />
+    </div>
+</form>
