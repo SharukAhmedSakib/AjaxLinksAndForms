@@ -27,9 +27,17 @@
 <script>
     $(document).ready(function () {
         $("#ProgressDiv").hide();
-        LoadGrid();
+        var count = 0;
 
         $("#GetAllStudents").click(function myfunction() {
+            count += 1;
+            if (count % 2 != 0) {
+                LoadGrid();
+                $("#studentList").show();
+            }
+            else {
+                $("#studentList").hide();
+            }
             
         });
         function LoadGrid() {
